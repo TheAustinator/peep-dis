@@ -1,5 +1,6 @@
 from termcolor import colored
 
+
 def peep(obj, verbose=False):
     obj_dir = dir(obj)
     if verbose is False:
