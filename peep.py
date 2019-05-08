@@ -1,7 +1,9 @@
 from termcolor import colored
+from copy import deepcopy
 
 
 def peep(obj, verbose=False):
+    obj = deepcopy(obj)
     obj_dir = dir(obj)
     if verbose is False:
         builtin_dir = dir(list) + dir(str) + dir(int) + ['__dict__', '__module__', '__weakref__']
