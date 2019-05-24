@@ -18,8 +18,7 @@
   <a href="#overview">Overview</a> •
   <a href="#features">Features</a> •
   <a href="#usage">Usage</a> •
-  <a href="#related">Related</a> •
-  <a href="#license">License</a>
+  <a href="#upcoming-features">Upcoming Features</a>
 </p>
 
 
@@ -28,8 +27,9 @@
 <p align="center"><img width=80% src="https://raw.githubusercontent.com/theaustinator/peep-dis/master/static/peep_dis_demo.gif"></p>
 
 ### Features
-* Evaluate attributes and callables
-* Calls run on duplicate objects to avoid state alteration
+* Evaluate and color codes attributes and callables
+* Duplicates object to avoid state alterations
+* Choose whether builtin and private attributes and methods are included
 * Attempt to forge arguments from type hints (in development)
 * Allow user specified arguments (in development)
 
@@ -41,14 +41,14 @@ Import
 ```python
 from peepdis import peep
 ```
-Use on external objects
+Peep external objects
 ```python
 import pandas as pd
 
 df = pd.DataFrame({'a': [1, 2, 3], 'b': [4, 5, 6]})
 peep(df)
 ```
-Use on your own objects
+Peep your own objects
 ```python
 class Square:
     def __init__(self, a, b, name=None):
@@ -66,9 +66,13 @@ class Square:
 sq = Rect(4, 4)
 peep(sq)
 ```
-Include builtins
+Include builtins (i.e. dunders)
 ```python
 peep(sq, builtins=True)
+```
+Include private attributes and methods
+```python
+peep(sq, privates=True)
 ```
 Use in debugger
 ```python
@@ -81,3 +85,4 @@ Use in debugger
 * User specified arguments
 * Argument forging from type hints, docstrings, or by brute force
 * Optionally include docstrings
+* Modify color scheme and other preferences
