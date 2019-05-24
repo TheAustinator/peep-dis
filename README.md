@@ -1,12 +1,19 @@
-<p align="center"><img width=12.5% src="https://raw.githubusercontent.com/theaustinator/peep-dis/master/static/peep_dis_logo.jpg"></p>
+<p align="center"><img width=50% src="https://raw.githubusercontent.com/theaustinator/peep-dis/master/static/peep_dis_logo.jpg"></p>
+
+<p align="center">
+  ![Python](https://img.shields.io/badge/python-v3.6+-blue.svg)
+  ![Contributions welcome](https://img.shields.io/badge/contributions-welcome-orange.svg)
+  [![Build Status](https://travis-ci.org/_insert_url_)](https://travis-ci.org/_insert_url_)
+  ![Dependencies](https://img.shields.io/badge/dependencies-up%20to%20date-brightgreen.svg)
+  [![GitHub Issues](https://img.shields.io/github/issues/TheAustinator/peep-dis.svg)](https://github.com/TheAustinator/peep-dis/issues)
+  [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+</p>
 
 ## A colorful CLI object inspector for python
 
 **peep dis (verb phrase, imperative)**: "Check this out" or "Hey! Have a look at this."
 
-![Python](https://img.shields.io/badge/python-v3.6+-blue.svg)
-![Contributions welcome](https://img.shields.io/badge/contributions-welcome-orange.svg)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+
 
 <p align="center">
   <a href="#overview">Overview</a> •
@@ -23,10 +30,52 @@
 
 ### Features
 * Evaluate attributes and callables
-* Attempt to forge arguments from type hints
-* Allow user specified arguments
+* Attempt to forge arguments from type hints (in development)
+* Allow user specified arguments (in development)
 * Calls run on duplicate objects to avoid state alteration
 
 ## Usage
+Install
+```
+pip install peepdis
+```
+Import
+```python
+from peepdis import peep
+```
+Use on external objects
+```python
+import pandas as pd
+
+df = pd.DataFrame({'a': [1, 2, 3], 'b': [4, 5, 6]})
+peep(df)
+```
+Use on your own objects
+```python
+class Square:
+    def __init__(self, a, b, name=None):
+        self.a = a
+        self.b = b
+        self.name = name
+    
+    def ratio(self):
+        return self.a / self.b
+    
+    def area(self):
+        return self.a * self.b
+ 
+ 
+ sq = Rect(4, 4)
+ peep(sq)
+ ```
+Include builtins
+```python
+peep(sq, builtins=True)
+```
 
 ## Upcoming Features
+* Include/exclude private methods and attributes
+* Detect and display resultant state changes
+* User specified arguments
+* Argument forging from type hints, docstrings, or by brute force
+* Optionally include docstrings
