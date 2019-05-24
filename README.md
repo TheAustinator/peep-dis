@@ -1,4 +1,4 @@
-<p align="center"><img width=50% src="https://raw.githubusercontent.com/theaustinator/peep-dis/master/static/peep_dis_logo.jpg"></p>
+<p align="center"><img width=50% src="https://raw.githubusercontent.com/theaustinator/peep-dis/master/static/peep_dis_banner.jpg"></p>
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 ![Python](https://img.shields.io/badge/python-v3.6+-blue.svg)
