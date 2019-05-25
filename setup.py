@@ -10,7 +10,7 @@ setup(
     url='https://github.com/TheAustinator/peep-dis',
     license=license,
     packages=find_packages(exclude=('tests', 'docs')),
-    install_requires=['termcolor'],
+    requirements=['termcolor'],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
