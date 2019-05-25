@@ -5,6 +5,17 @@ from peepdis.core import CallablePeeper, Peeper
 import pytest
 
 # TODO: test idempotency of Peeper.peep
+class Square:
+    def __init__(self, a, b, name=None):
+        self.a = a
+        self.b = b
+        self.name = name
+
+    def ratio(self):
+        return self.a / self.b
+
+    def area(self):
+        return self.a * self.b
 
 
 class AttrClass:
