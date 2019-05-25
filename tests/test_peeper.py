@@ -1,6 +1,3 @@
-"""
-
-"""
 from peepdis.core import CallablePeeper, Peeper
 import pytest
 
@@ -83,6 +80,7 @@ class TestOutput:
     def test_str(self):
         pass
 
+"""
 
 class TestAttr:
     def test_attrs(self, attr_peeper):
@@ -117,7 +115,7 @@ class TestForging:
 
     def test_mixed_overwrite(self):
         pass
-
+"""
 
 class ColorSchemeTest:
     def test_color_scheme_update(self):
