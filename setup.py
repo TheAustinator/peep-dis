@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='peepdis',
-    version='0.1.7',
+    version='0.1.8',
     description='Terminal object inspector for python',
     author='Austin McKay',
     author_email='austinmckay303@gmail.com',
