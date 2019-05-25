@@ -3,9 +3,10 @@ from termcolor import colored
 import sys
 
 
-def peep(obj, builtins=False, privates=False):
+def peep(obj, builtins=False, privates=False, truncate_len=250):
     obj = deepcopy(obj)
     obj_dir = dir(obj)
+    output = ''
     if builtins is False:
         builtin_dir = dir(list) + dir(str) + dir(int) + dir(dict) + dir(tuple)
         obj_dir = [x for x in obj_dir if x not in builtin_dir]
@@ -24,14 +25,15 @@ def peep(obj, builtins=False, privates=False):
     else:
         debug = False
     if debug:
-        output = ''
-
         def out_func(*args):
             nonlocal output
             for str_ in args:
+                str_ = shorten(str_, truncate_len)
                 output += str_ + '\n'
     else:
-        out_func = print
+        def out_func(*args):
+            for arg in args:
+                print(shorten(arg, truncate_len))
 
     for item in obj_dir:
         item_str = f'obj.{item}'
@@ -63,3 +65,10 @@ def peep(obj, builtins=False, privates=False):
     if debug:
         return output
 
+
+def shorten(item, max_len):
+    str_ = str(item)
+    if max_len:
+        if len(str_) > max_len:
+            str_ = str_[:max_len] + ' ...'
+    return str_
