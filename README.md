@@ -74,6 +74,10 @@ Include private attributes and methods
 ```python
 peep(sq, privates=True)
 ```
+Print docstrings with output
+```python
+peep(sq, docstrings=True)
+```
 Include long outputs (truncates at 250 char by default)
 ```python
 peep(sq, truncate_len=None)
