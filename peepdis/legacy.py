@@ -8,9 +8,6 @@ def peep(obj, builtins=False, privates=False, truncate_len=250):
     obj_dir = dir(obj)
     output = ''
     if builtins is False:
-        builtin_dir = dir(list) + dir(str) + dir(int) + dir(dict) + dir(tuple)
-        obj_dir = [x for x in obj_dir if x not in builtin_dir]
-        # remove dunders
         _is_dunder = lambda x: (x.startswith('__') and x.endswith('__'))
         obj_dir = [x for x in obj_dir if not _is_dunder(x)]
 
