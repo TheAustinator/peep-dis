@@ -25,12 +25,12 @@ def peep(obj, builtins=False, privates=False, truncate_len=250):
         def out_func(*args):
             nonlocal output
             for str_ in args:
-                str_ = shorten(str_, truncate_len)
-                output += str_ + '\n'
+                str_ = shorten(str_, max_len=truncate_len)
+                output += str_
+            output += '\n'
     else:
         def out_func(*args):
-            for arg in args:
-                print(shorten(arg, truncate_len))
+            print(shorten(*args, max_len=truncate_len))
 
     for item in obj_dir:
         item_str = f'obj.{item}'
@@ -63,8 +63,8 @@ def peep(obj, builtins=False, privates=False, truncate_len=250):
         return output
 
 
-def shorten(item, max_len):
-    str_ = str(item)
+def shorten(*args, max_len=250):
+    str_ = ''.join(args)
     if max_len:
         if len(str_) > max_len:
             str_ = str_[:max_len] + ' ...'
