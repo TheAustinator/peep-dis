@@ -1,7 +1,6 @@
 from copy import deepcopy
 from inspect import getfullargspec
-from types import BuiltinFunctionType, BuiltinMethodType, FunctionType,\
-    MethodType
+from types import BuiltinFunctionType, BuiltinMethodType, FunctionType, MethodType
 
 from typing import Any, Callable, Dict, Tuple, Type
 
@@ -48,15 +47,14 @@ class Peeper(PeeperMixin, _PreferencesMixin):
         if verbose:
             return dict(self)
         else:
-            return {name: self[name] for name in self
-                    if name not in self.builtins}
+            return {name: self[name] for name in self if name not in self.builtins}
 
     def print(self, verbose=False):
         for name, output in self.results(verbose).items():
             print(*output.get_colored())
 
     def evaluate(self, name, *args, forge=False, **kwargs) -> Output:
-        attr = eval(f'self.obj.{name}')
+        attr = eval(f"self.obj.{name}")
         if not callable(attr):
             return Output(name, attr)
         # TODO: consider different paths for builtins
@@ -66,18 +64,19 @@ class Peeper(PeeperMixin, _PreferencesMixin):
             peeper_class = CallablePeeper
         else:
             peeper_class = BuiltinCallablePeeper
-        if name == 'plot':
+        if name == "plot":
             a = 5
         try:
             peeper = peeper_class(attr)
             return peeper.evaluate(*args, forge=forge, **kwargs)
         except Exception as e:
-            if 'unsupported callable' in str(e):
-                output_str = '(unsupported callable)'
+            if "unsupported callable" in str(e):
+                output_str = "(unsupported callable)"
                 return Output(
-                    name, output_str, callable_=True, unsupported_callable=True)
+                    name, output_str, callable_=True, unsupported_callable=True
+                )
             else:
-                raise ValueError(f'Unexpected error for method {name}')
+                raise ValueError(f"Unexpected error for method {name}")
 
     def _index(self, output: Output):
         self[output.name] = output
@@ -110,27 +109,33 @@ class BuiltinCallablePeeper(PeeperMixin):
         except Exception as e:
             output_str = repr(e)
             error = True
-            if 'argument' in str(e):
+            if "argument" in str(e):
                 args_missing = True
-                if ':' in str(e):
-                    missing_arg_str = output_str.split(':')[1][:-2]
-                    output_str = f'(missing args:{missing_arg_str})'
+                if ":" in str(e):
+                    missing_arg_str = output_str.split(":")[1][:-2]
+                    output_str = f"(missing args:{missing_arg_str})"
                 else:
-                    output_str = f'(missing args)'
+                    output_str = f"(missing args)"
             else:
                 args_missing = False
                 output_str = repr(e)
         else:
             error = False
             args_missing = False
-        return Output(obj.__name__, output_str, self.args, callable_=True,
-                      error=error, args_missing=args_missing)
+        return Output(
+            obj.__name__,
+            output_str,
+            self.args,
+            callable_=True,
+            error=error,
+            args_missing=args_missing,
+        )
 
 
 class CallablePeeper(PeeperMixin):
     _ordinary_callables = (FunctionType, MethodType)
     _builtin_callables = (BuiltinFunctionType, BuiltinMethodType)
-    _forgery_dict = {'int': 0, 'str': 'abc', 'list': [0, 1], 'None': None}
+    _forgery_dict = {"int": 0, "str": "abc", "list": [0, 1], "None": None}
 
     def __init__(self, obj, *args, **kwargs):
         super().__init__(obj)
@@ -145,13 +150,13 @@ class CallablePeeper(PeeperMixin):
         if self.spec.defaults:
             for i, arg in enumerate(self.spec.defaults[::-1]):
                 self.args[-1 - i].value = arg
-                self.args[-1 - i].method = 'default'
+                self.args[-1 - i].method = "default"
         for i, arg in enumerate(args):
             self.args[i].value = arg
-            self.args[i].method = 'specified'
+            self.args[i].method = "specified"
         for name, arg in kwargs.items():
             self.args[name].value = arg
-            self.args[name].method = 'specified'
+            self.args[name].method = "specified"
 
     def evaluate(self, *args, forge=False, **kwargs) -> Output:
         obj = deepcopy(self.obj)
@@ -165,9 +170,9 @@ class CallablePeeper(PeeperMixin):
         except Exception as e:
             output_str = repr(e)
             error = True
-            if 'missing' in str(e) and 'argument' in str(e):
-                missing_arg_str = output_str.split(':')[1][:-2]
-                output_str = f'(missing args:{missing_arg_str})'
+            if "missing" in str(e) and "argument" in str(e):
+                missing_arg_str = output_str.split(":")[1][:-2]
+                output_str = f"(missing args:{missing_arg_str})"
                 args_missing = True
             else:
                 args_missing = False
@@ -175,28 +180,34 @@ class CallablePeeper(PeeperMixin):
         else:
             error = False
             args_missing = False
-        return Output(obj.__name__, output_str, self.args, callable_=True,
-                      error=error, args_missing=args_missing)
+        return Output(
+            obj.__name__,
+            output_str,
+            self.args,
+            callable_=True,
+            error=error,
+            args_missing=args_missing,
+        )
 
     def forge_args(self, *args, **kwargs):
         """ Attempt to generate arguments to call the method """
         # TODO: currently forging kwargs and causing errors. Only forge positionals
         type_dict = self._infer_types()
-        self.args.returns = type_dict.pop('returns', None)
+        self.args.returns = type_dict.pop("returns", None)
         for name in self.args.null_args:
             type_ = type_dict.get(name, None)
             if not type_:
                 # TODO: fill in with brute force
                 continue
             self.args[name].value = self._forgery_dict[type_]
-            self.args[name].method = 'forged'
+            self.args[name].method = "forged"
             self.args[name].type_ = type_
         for i, arg in enumerate(args):
             self.args[i].value = arg
-            self.args[i].method = 'specified'
+            self.args[i].method = "specified"
         for name, arg in kwargs.items():
             self.args[name].value = arg
-            self.args[name].method = 'specified'
+            self.args[name].method = "specified"
         return self.args
 
     def _infer_types(self, brute_force=True):
@@ -204,7 +215,7 @@ class CallablePeeper(PeeperMixin):
         # TODO: modify state of self.args rather than calling in forge_args
         type_dict = dict(self.spec.annotations)
         type_dict = {k: v.__name__ for k, v in type_dict}
-        type_dict.pop('self', None)
+        type_dict.pop("self", None)
         return type_dict
 
     def _brute_force_types(self):

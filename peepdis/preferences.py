@@ -1,15 +1,15 @@
 class _PreferencesMixin:
     _color_scheme = {
-        'error': 'red',
-        'callable_': 'cyan',
-        'attr': 'magenta',
-        'message': 'white',
-        'null': 'grey',
-        'forged': 'yellow',
-        'specified': 'orange',
-        'default': 'grey',
-        'None': 'grey',
-        'builtin': 'grey',
+        "error": "red",
+        "callable_": "cyan",
+        "attr": "magenta",
+        "message": "white",
+        "null": "grey",
+        "forged": "yellow",
+        "specified": "orange",
+        "default": "grey",
+        "None": "grey",
+        "builtin": "grey",
     }
     _display_type_annotations = True
 
