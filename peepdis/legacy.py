@@ -16,8 +16,8 @@ def peep(obj, builtins=False, privates=False, docstrings=False, truncate_len=250
     obj_dir = dir(obj)
     output = ""
     if builtins is False:
-        _is_dunder = lambda x: (x.startswith("__") and x.endswith("__"))
-        obj_dir = [x for x in obj_dir if not _is_dunder(x)]
+        _is_magic = lambda x: (x.startswith("__") and x.endswith("__"))
+        obj_dir = [x for x in obj_dir if not _is_magic(x)]
 
     if privates is False:
         _is_private = lambda x: (x.startswith("_") and not x.endswith("_"))

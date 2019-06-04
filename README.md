@@ -71,7 +71,7 @@ class Square:
 sq = Rect(4, 4)
 peep(sq)
 ```
-Include builtins (i.e. dunders)
+Include builtins (i.e. magics)
 ```python
 peep(sq, builtins=True)
 ```
