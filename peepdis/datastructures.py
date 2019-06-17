@@ -84,8 +84,8 @@ class ArgDict(OrderedDict, _PreferencesMixin):
 
 class Output(_PreferencesMixin):
     _types = {float, int, list, dict, str, tuple}
-    _dunders = {"__dict__", "__module__", "__weakref__", "__slotnames__"}
-    _builtins = {x for type_ in _types for x in dir(type_)} | _dunders
+    _magics = {"__dict__", "__module__", "__weakref__", "__slotnames__"}
+    _builtins = {x for type_ in _types for x in dir(type_)} | _magics
 
     def __init__(
         self,

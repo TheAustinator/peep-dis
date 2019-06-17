@@ -3,10 +3,15 @@
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 ![Python](https://img.shields.io/badge/python-v3.6+-blue.svg)
 ![Contributions welcome](https://img.shields.io/badge/contributions-welcome-orange.svg)
-[![Build Status](https://travis-ci.org/TheAustinator/peep-dis.svg?branch=master)](https://travis-ci.org/TheAustinator/peep-dis)
 ![Dependencies](https://img.shields.io/badge/dependencies-up%20to%20date-brightgreen.svg)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/python/black)
 [![GitHub Issues](https://img.shields.io/github/issues/TheAustinator/peep-dis.svg)](https://github.com/TheAustinator/peep-dis/issues)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+[![PyPI version](https://badge.fury.io/py/peepdis.svg)](https://badge.fury.io/py/peepdis)
+[![Build Status](https://travis-ci.org/TheAustinator/peep-dis.svg?branch=master)](https://travis-ci.org/TheAustinator/peep-dis)
+
 
 ## A colorful CLI object inspector for python
 
@@ -66,7 +71,7 @@ class Square:
 sq = Rect(4, 4)
 peep(sq)
 ```
-Include builtins (i.e. dunders)
+Include builtins (i.e. magics)
 ```python
 peep(sq, builtins=True)
 ```
