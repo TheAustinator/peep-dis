@@ -62,7 +62,7 @@ def peep(obj, builtins=False, privates=False, docstrings=False, truncate_len=250
                 colored(msg, msg_color),
                 colored(doc, "green"),
             )
-            print(colored("(requires positional args)", "grey"))
+            print(colored(msg, "grey"))
         print(colored(obj.__doc__, "green"))
 
     for item in obj_dir:
@@ -90,7 +90,7 @@ def peep(obj, builtins=False, privates=False, docstrings=False, truncate_len=250
                 out_func(colored(f"{item}(): ", "magenta"), msg, colored(doc, "green"))
             except (Exception, BaseException) as e:
                 if (
-                    "required positional argument"
+                    "required positional argument" in str(e)
                     or "requires positional argument" in str(e)
                 ):
                     msg = "(requires positional argument)"

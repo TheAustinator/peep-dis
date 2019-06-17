@@ -1,6 +1,7 @@
 from collections import OrderedDict
 from copy import deepcopy
 from inspect import getfullargspec
+import numpy as np
 from types import BuiltinMethodType
 
 
@@ -39,6 +40,25 @@ def main():
     # state comparator
     outputs_incl_state = call_all_tracked(rect)
     print(outputs_incl_state)
+
+
+class WeatherSeries:
+    def __init__(self, arr):
+        self.stdtemp = arr
+
+    def temp(self):
+        return np.array([[i, x] for i, x in enumerate(self.stdtemp)])
+
+    def itemp(self, i):
+        return self.stdtemp[i]
+
+    def mtemp(self):
+        min_ = min(self.stdtemp)
+        max_ = max(self.stdtemp)
+        index_min = np.argmin(self.stdtemp)
+        index_max = np.argmax(self.stdtemp)
+        len_ = len(self.stdtemp)
+        return {'min': min_, 'max': max_, 'index min': index_min, 'index max': index_max, 'len': len_}
 
 
 class Rectangle:
