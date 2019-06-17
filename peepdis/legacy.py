@@ -66,10 +66,9 @@ def peep(obj, builtins=False, privates=False, docstrings=False, truncate_len=250
         print(colored(obj.__doc__, "green"))
 
     for item in obj_dir:
-        item_str = f"obj.{item}"
+        attr = getattr(obj, item)
         doc = ""
         try:
-            attr = eval(item_str)
             if docstrings and attr.__doc__ is not None:
                 doc = "\n" + attr.__doc__
             eval_str = str(attr)
