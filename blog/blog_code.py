@@ -1,10 +1,17 @@
 from collections import OrderedDict
 from copy import deepcopy
 from inspect import getfullargspec
+import numpy as np
 from types import BuiltinMethodType
+from sklearn.model_selection._validation import permutation_test_score
 
 
 def main():
+    import numpy as np
+    arr = np.array([1, 2, 3])
+    arr_outputs = call_all_tracked(arr)
+    print(arr_outputs)
+
     # show dir
     rect = Rectangle(3., 4.)
     print(dir(rect))
@@ -38,7 +45,7 @@ def main():
     print(forged_outputs)
     # state comparator
     outputs_incl_state = call_all_tracked(rect)
-    print(outputs_incl_state)
+    print('tracked: ', outputs_incl_state)
 
 
 class Rectangle:
@@ -58,6 +65,9 @@ class Rectangle:
         """ cut in half and return the "other half" """
         self.a /= 2
         return Rectangle(self.a, self.b)
+
+    def __repr__(self):
+        return str(self)
 
     def __str__(self):
         return self.__class__.__name__ + str({'a': self.a, 'b': self.b})
@@ -87,7 +97,7 @@ def get_callable(obj, name: str):
 
 def attempt_call(func):
     try:
-        return str(func())
+        return func()
     except:
         return '(failed to evaluate method)'
 
@@ -108,7 +118,7 @@ def call_if_no_positionals(func):
         args.remove('self')
     n_defaults = len(spec.defaults) if spec.defaults else 0
     if len(args) == n_defaults:
-        return str(func())
+        return func()
     else:
         return '(requires positional args)'
 
@@ -181,7 +191,7 @@ def forge_call_all(obj, sample_dict=_sample_args):
         method = get_callable(obj, name)
         try:
             arg_dict = forge_args(method, sample_dict)
-            output_dict[name] = str(method(**arg_dict))
+            output_dict[name] = method(**arg_dict)
         except ForgeError:
             output_dict[name] = "(Failed to forge args)"
         except Exception:
@@ -191,11 +201,23 @@ def forge_call_all(obj, sample_dict=_sample_args):
 
 class StateComparator:
     def __init__(self, obj):
-        self.state = deepcopy(obj.__dict__)
+        if getattr(obj, '__dict__', False):
+            self._state_saved = True
+            self.state = deepcopy(obj.__dict__)
+        else:
+            self._state_saved = False
+            self.obj = deepcopy(obj)
 
     def compare(self, other):
-        state_1 = self.state
-        state_2 = deepcopy(other.__dict__)
+        if self._state_saved:
+            st  ate_1 = self.state
+            state_2 = other.__dict__
+            return self._state_comparator(state_1, state_2)
+        else:
+            return self._obj_comparator(self.obj, other)
+
+    @staticmethod
+    def _state_comparator(state_1, state_2):
         new_attrs = {k: v for k, v in state_2.items() if k not in state_1}
         del_attrs = {k: v for k, v in state_1.items() if k not in state_2}
         mod_attrs = {k: (v, state_2[k]) for k, v in state_1.items()
@@ -209,28 +231,41 @@ class StateComparator:
             change_dict['modified'] = mod_attrs
         return change_dict
 
+    @staticmethod
+    def _obj_comparator(obj_1, obj_2):
+        eq = obj_1 == obj_2
+        while getattr(eq, '__iter__', False):
+            eq = all(eq)
+        change_dict = {}
+        if not eq:
+            change_dict['modified'] = True
+        return change_dict
+
 
 def call_all_tracked(obj, sample_dict=_sample_args, forge=True):
     dir_filtered = magic_filter(obj)
     method_names = filter_methods(obj, dir_filtered)
     output_dict = {}
     for name in method_names:
-        obj_2 = deepcopy(obj)
+        obj = deepcopy(obj)
         # store initial state
-        state = StateComparator(obj_2)
-        method = getattr(obj_2, name)
+        state = StateComparator(obj)
+        method = getattr(obj, name)
+        arg_dict = {}
+        if forge is True:
+            try:
+                arg_dict.update(forge_args(method, sample_dict))
+            except Exception:
+                forge_error = True
         try:
-            if forge is True:
-                arg_dict = forge_args(method, sample_dict)
-            else:
-                arg_dict = {}
-            output_dict[name] = str(method(**arg_dict))
-        except ForgeError:
-            output_dict[name] = "(Failed to forge args)"
+            output_dict[name] = method(**arg_dict)
         except Exception:
-            output_dict[name] = "(Failed to run method with forged args)"
+            if 'forge_error' in locals():
+                output_dict[name] = "(Failed to forge args)"
+            else:
+                output_dict[name] = "(Failed to run method)"
         # check for state changes
-        change_dict = state.compare(obj_2)
+        change_dict = state.compare(obj)
         if change_dict:
             output_dict[name] = {
                 'output': output_dict[name],
@@ -241,11 +276,6 @@ def call_all_tracked(obj, sample_dict=_sample_args, forge=True):
             if output_dict[name]['output'] == 'None':
                 del output_dict[name]['output']
     return output_dict
-
-
-class StateWrapperMeta(type):
-    def __new__(cls, arg):
-        pass
 
 
 if __name__ == '__main__':
