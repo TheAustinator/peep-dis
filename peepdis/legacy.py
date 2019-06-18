@@ -1,4 +1,5 @@
 from copy import deepcopy
+import re
 from termcolor import colored
 from types import (
     BuiltinMethodType,
@@ -10,7 +11,8 @@ from types import (
 import sys
 
 
-def peep(obj, builtins=False, privates=False, docstrings=False, truncate_len=250):
+def peep(obj, builtins=False, privates=False, docstrings=False,
+         truncate_len=250):
     if not isinstance(obj, ModuleType):
         obj = deepcopy(obj)
     obj_dir = dir(obj)
@@ -49,10 +51,8 @@ def peep(obj, builtins=False, privates=False, docstrings=False, truncate_len=250
         try:
             print(obj())
         except Exception as e:
-            if "required positional argument" or "requires positional argument" in str(
-                e
-            ):
-                msg = "(requires positional argument)"
+            if _positional_exception(e):
+                msg = "(requires positional arguments)"
                 msg_color = "grey"
             else:
                 msg = f"RAISES EXCEPTION : {e}"
@@ -89,11 +89,8 @@ def peep(obj, builtins=False, privates=False, docstrings=False, truncate_len=250
                 msg = _fix_if_multiline(msg)
                 out_func(colored(f"{item}(): ", "magenta"), msg, colored(doc, "green"))
             except (Exception, BaseException) as e:
-                if (
-                    "required positional argument" in str(e)
-                    or "requires positional argument" in str(e)
-                ):
-                    msg = "(requires positional argument)"
+                if _positional_exception(e):
+                    msg = "(requires positional arguments)"
                     msg_color = "grey"
                 else:
                     msg = f"RAISES EXCEPTION : {e}"
@@ -115,7 +112,7 @@ class Peeper:
         pass
 
 
-def _shorten(*args, max_len=250):
+def _shorten(*args, max_len):
     str_ = "".join(args)
     if max_len:
         if len(str_) > max_len:
@@ -128,3 +125,22 @@ def _fix_if_multiline(msg):
         return "\n" + msg
     else:
         return msg
+
+
+def _positional_exception(e):
+    e = str(e).lower()
+    msgs = ('required argument', 'positional argument', 'missing argument',
+            'requires argument', 'must be given', )
+    re_msgs = (r'exactly . argument', r'at least .* argument', )
+    if any([msg in e for msg in msgs]):
+        return True
+    if any([re.compile(msg).search(e) for msg in re_msgs]):
+        return True
+    else:
+        return False
+
+
+if __name__ == '__main__':
+    import numpy as np
+    arr = np.array([1, 2, 3])
+    print(peep(arr))

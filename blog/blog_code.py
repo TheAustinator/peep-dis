@@ -3,7 +3,8 @@ from copy import deepcopy
 from inspect import getfullargspec
 import numpy as np
 from types import BuiltinMethodType
-from sklearn.model_selection._validation import permutation_test_score
+
+import pandas as pd
 
 
 def main():
@@ -55,7 +56,7 @@ class WeatherSeries:
     def temp(self):
         return np.array([[i, x] for i, x in enumerate(self.stdtemp)])
 
-    def itemp(self, i):
+    def itemp(self, i: int):
         return self.stdtemp[i]
 
     def mtemp(self):
@@ -191,8 +192,9 @@ def forge_args(func, sample_dict=_sample_args):
         # check for default values if keyword arg
         defaults = getfullargspec(func).defaults
         n_args_remaining = len(arg_types) - i
-        if len(defaults) >= n_args_remaining:
-            arg_dict[arg] = defaults[- n_args_remaining]
+        if defaults:
+            if len(defaults) >= n_args_remaining:
+                arg_dict[arg] = defaults[- n_args_remaining]
         # if no defaults, attempt to forge from _sample_dict
         elif type_ in _sample_args:
             arg_dict[arg] = sample_dict[type_]
@@ -229,7 +231,7 @@ class StateComparator:
 
     def compare(self, other):
         if self._state_saved:
-            st  ate_1 = self.state
+            state_1 = self.state
             state_2 = other.__dict__
             return self._state_comparator(state_1, state_2)
         else:
@@ -275,6 +277,7 @@ def call_all_tracked(obj, sample_dict=_sample_args, forge=True):
             try:
                 arg_dict.update(forge_args(method, sample_dict))
             except Exception:
+                import ipdb; ipdb.set_trace()
                 forge_error = True
         try:
             output_dict[name] = method(**arg_dict)
@@ -291,11 +294,71 @@ def call_all_tracked(obj, sample_dict=_sample_args, forge=True):
                 'state changes': change_dict,
             }
         # remove 'output' entry in `output_dict` if no output
+        """
         if isinstance(output_dict[name], dict):
             if output_dict[name]['output'] == 'None':
                 del output_dict[name]['output']
+        """
+    return output_dict
+
+
+def eval_all(obj, sample_dict=_sample_args, forge=True):
+    dir_filtered = magic_filter(obj)
+    attr_names = filter_attrs(obj, dir_filtered)
+    method_names = filter_methods(obj, dir_filtered)
+    output_dict = {}
+    for name in method_names:
+        obj = deepcopy(obj)
+        # store initial state
+        state = StateComparator(obj)
+        method = getattr(obj, name)
+        arg_dict = {}
+        if forge is True:
+            try:
+                args = forge_args(method, sample_dict)
+                arg_dict.update(args)
+            except Exception as e:
+                forge_error = True
+        try:
+            output_dict[name] = {
+                'output': method(**arg_dict),
+                'type': 'method',
+                'output type': 'result',
+            }
+        except Exception:
+            if 'forge_error' in locals():
+                output_dict[name] = {
+                    'output': "(Failed to forge args)",
+                    'type': 'method',
+                    'output type': 'null',
+                }
+            else:
+                output_dict[name] = {
+                    'output': "(Failed to run method)",
+                    'type': 'method',
+                    'output type': 'null',
+                }
+        # check for state changes
+        change_dict = state.compare(obj)
+        if change_dict:
+            output_dict[name] = {
+                'output': output_dict[name],
+                'state changes': change_dict,
+                'type': 'method',
+                'output type': 'null',
+            }
+        if arg_dict:
+            output_dict[name]['args'] = arg_dict
+        # remove 'output' entry in `output_dict` if no output
     return output_dict
 
 
 if __name__ == '__main__':
-    main()
+    mystery_obj = WeatherSeries([67, 69, 70, 70, 71, 70])
+    print(eval_all(mystery_obj))
+    df_obj = pd.DataFrame({
+        'temp': [67, 69, 70, 70, 71, 70],
+        'humidity': [65, 65, 60, 60, 55, 55]
+    })
+    # print(eval_all(df_obj))
+    #main()
