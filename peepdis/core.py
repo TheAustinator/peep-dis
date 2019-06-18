@@ -54,7 +54,7 @@ class Peeper(PeeperMixin, _PreferencesMixin):
             print(*output.get_colored())
 
     def evaluate(self, name, *args, forge=False, **kwargs) -> Output:
-        attr = eval(f"self.obj.{name}")
+        attr = getattr(self.obj, name)
         if not callable(attr):
             return Output(name, attr)
         # TODO: consider different paths for builtins
@@ -113,7 +113,7 @@ class BuiltinCallablePeeper(PeeperMixin):
                 args_missing = True
                 if ":" in str(e):
                     missing_arg_str = output_str.split(":")[1][:-2]
-                    output_str = f"(missing args:{missing_arg_str})"
+                    output_str = f"(missing args: {missing_arg_str})"
                 else:
                     output_str = f"(missing args)"
             else:
@@ -140,7 +140,7 @@ class CallablePeeper(PeeperMixin):
     def __init__(self, obj, *args, **kwargs):
         super().__init__(obj)
         if isinstance(obj, self._ordinary_callables):
-            self.spec = getfullargspec(obj)
+            self.spec = getfullargspec(obj)    # TODO: test on arrays, dataframes, and sklearn models (seemed to work on sklearn)
             self.args = ArgDict(self.spec.args)
             self._collect_args(*args, **kwargs)
         elif isinstance(obj, self._builtin_callables):
@@ -172,7 +172,7 @@ class CallablePeeper(PeeperMixin):
             error = True
             if "missing" in str(e) and "argument" in str(e):
                 missing_arg_str = output_str.split(":")[1][:-2]
-                output_str = f"(missing args:{missing_arg_str})"
+                output_str = f"(missing args: {missing_arg_str})"
                 args_missing = True
             else:
                 args_missing = False

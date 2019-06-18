@@ -48,6 +48,25 @@ def main():
     print('tracked: ', outputs_incl_state)
 
 
+class WeatherSeries:
+    def __init__(self, arr):
+        self.stdtemp = arr
+
+    def temp(self):
+        return np.array([[i, x] for i, x in enumerate(self.stdtemp)])
+
+    def itemp(self, i):
+        return self.stdtemp[i]
+
+    def mtemp(self):
+        min_ = min(self.stdtemp)
+        max_ = max(self.stdtemp)
+        index_min = np.argmin(self.stdtemp)
+        index_max = np.argmax(self.stdtemp)
+        len_ = len(self.stdtemp)
+        return {'min': min_, 'max': max_, 'index min': index_min, 'index max': index_max, 'len': len_}
+
+
 class Rectangle:
     def __init__(self, a: float, b: float):
         self.a = a
