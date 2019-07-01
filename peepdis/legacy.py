@@ -16,7 +16,7 @@ def peep(obj, builtins=False, privates=False, docstrings=False,
     if not isinstance(obj, ModuleType):
         obj = deepcopy(obj)
     obj_dir = dir(obj)
-    output = ""
+    output = OutputStrWrapper(truncate_len)
     if builtins is False:
         _is_magic = lambda x: (x.startswith("__") and x.endswith("__"))
         obj_dir = [x for x in obj_dir if not _is_magic(x)]
@@ -31,19 +31,6 @@ def peep(obj, builtins=False, privates=False, docstrings=False,
         debug = True
     else:
         debug = False
-    if debug:
-
-        def out_func(*args):
-            nonlocal output
-            for str_ in args:
-                str_ = _shorten(str_, max_len=truncate_len)
-                output += str_
-            output += "\n"
-
-    else:
-
-        def out_func(*args):
-            print(_shorten(*args, max_len=truncate_len))
 
     print(colored(getattr(obj, "__name__", ""), "red"))
     doc = getattr(obj, "__doc__", "")
@@ -57,7 +44,7 @@ def peep(obj, builtins=False, privates=False, docstrings=False,
             else:
                 msg = f"RAISES EXCEPTION : {e}"
                 msg_color = "red"
-            out_func(
+            output.add(
                 colored(f"{obj}(): ", "magenta"),
                 colored(msg, msg_color),
                 colored(doc, "green"),
@@ -75,9 +62,13 @@ def peep(obj, builtins=False, privates=False, docstrings=False,
             eval_str = "" if eval_str == "None" else eval_str
             if callable(attr) is False:
                 eval_str = _fix_if_multiline(eval_str)
-                out_func(colored(f"{item}: ", "cyan"), eval_str, colored(doc, "green"))
+                output.add(
+                    colored(f"{item}: ", "cyan"),
+                    eval_str,
+                    colored(doc, "green")
+                )
         except (Exception, BaseException) as e:
-            out_func(
+            output.add(
                 colored(f"{item}: ", "cyan"),
                 colored(f"RAISES EXCEPTION : {e}", "red"),
                 colored(doc, "green"),
@@ -87,7 +78,11 @@ def peep(obj, builtins=False, privates=False, docstrings=False,
             try:
                 msg = str(attr())
                 msg = _fix_if_multiline(msg)
-                out_func(colored(f"{item}(): ", "magenta"), msg, colored(doc, "green"))
+                output.add(
+                    colored(f"{item}(): ", "magenta"),
+                    msg,
+                    colored(doc, "green")
+                )
             except (Exception, BaseException) as e:
                 if _positional_exception(e):
                     msg = "(requires positional arguments)"
@@ -95,14 +90,29 @@ def peep(obj, builtins=False, privates=False, docstrings=False,
                 else:
                     msg = f"RAISES EXCEPTION : {e}"
                     msg_color = "red"
-                out_func(
+                output.add(
                     colored(f"{item}(): ", "magenta"),
                     colored(msg, msg_color),
                     colored(doc, "green"),
                 )
                 continue
-    if debug:
-        return output
+    return output
+
+
+class OutputStrWrapper:
+    def __init__(self, max_len):
+        self._max_len = max_len
+        self._output_str = ''
+
+    def add(self, *args):
+        str_ = _shorten(*args, max_len=self._max_len)
+        self._output_str += str_ + '\n'
+
+    def __repr__(self):
+        return str(self._output_str)
+
+    def __str__(self):
+        return repr(self)
 
 
 class Peeper:
@@ -130,7 +140,7 @@ def _fix_if_multiline(msg):
 def _positional_exception(e):
     e = str(e).lower()
     msgs = ('required argument', 'positional argument', 'missing argument',
-            'requires argument', 'must be given', )
+            'requires argument', 'must be given', 'takes exactly')
     re_msgs = (r'exactly . argument', r'at least .* argument', )
     if any([msg in e for msg in msgs]):
         return True
@@ -141,6 +151,7 @@ def _positional_exception(e):
 
 
 if __name__ == '__main__':
+    print(peep('asdf'))
     import numpy as np
     arr = np.array([1, 2, 3])
     print(peep(arr))

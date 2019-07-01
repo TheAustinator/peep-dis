@@ -2,6 +2,7 @@ from collections import OrderedDict
 from copy import deepcopy
 from inspect import getfullargspec
 import numpy as np
+from termcolor import colored
 from types import BuiltinMethodType
 
 import pandas as pd
@@ -84,7 +85,6 @@ class Rectangle:
     def take_half(self):
         """ cut in half and return the "other half" """
         self.a /= 2
-        return Rectangle(self.a, self.b)
 
     def __repr__(self):
         return str(self)
@@ -322,20 +322,20 @@ def eval_all(obj, sample_dict=_sample_args, forge=True):
         try:
             output_dict[name] = {
                 'output': method(**arg_dict),
-                'type': 'method',
-                'output type': 'result',
+                'type': 'callable_',
+                'output type': 'message',
             }
         except Exception:
             if 'forge_error' in locals():
                 output_dict[name] = {
                     'output': "(Failed to forge args)",
-                    'type': 'method',
+                    'type': 'callable_',
                     'output type': 'null',
                 }
             else:
                 output_dict[name] = {
                     'output': "(Failed to run method)",
-                    'type': 'method',
+                    'type': 'callable_',
                     'output type': 'null',
                 }
         # check for state changes
@@ -344,7 +344,7 @@ def eval_all(obj, sample_dict=_sample_args, forge=True):
             output_dict[name] = {
                 'output': output_dict[name],
                 'state changes': change_dict,
-                'type': 'method',
+                'type': 'callable_',
                 'output type': 'null',
             }
         if arg_dict:
@@ -353,12 +353,57 @@ def eval_all(obj, sample_dict=_sample_args, forge=True):
     return output_dict
 
 
+_color_scheme = {
+    "error": "red",
+    "callable_": "magenta",
+    "attr": "cyan",
+    "message": "white",
+    "null": "grey",
+    "forged": "yellow",
+    "specified": "orange",
+    "default": "grey",
+    "None": "grey",
+    "builtin": "grey",
+    "state change": "yellow",
+}
+
+
+def print_all(output_dict, color_scheme=_color_scheme):
+    total_str = ''
+    for k, v in output_dict.items():
+        str_ = ''
+        output = v['output']
+        type_ = v['type']
+        output_type = v['output type']
+        item_color = color_scheme[type_]
+        output_color = color_scheme[output_type]
+        str_ += colored(k, item_color)
+        if type_ == 'callable_':
+            args = v.get('args')
+            str_ += colored('(', item_color)
+            if args:
+                str_ += colored(args, color_scheme['forged'])
+            str_ += colored(')', item_color)
+        str_ += colored(':', item_color)
+        msg_str = colored(output, output_color)
+        if '\n' in str(output):
+            str_ += '\n' + msg_str
+        else:
+            str_ += ' ' + msg_str
+        if v.get('state change'):
+            state_change = v.get('state change')
+            str_ += colored(state_change, color_scheme['state change'])
+        total_str += str_ + '\n'
+    return total_str
+
+
 if __name__ == '__main__':
-    mystery_obj = WeatherSeries([67, 69, 70, 70, 71, 70])
+    # mystery_obj = WeatherSeries([67, 69, 70, 70, 71, 70])
+    mystery_obj = Rectangle(3, 4)
     print(eval_all(mystery_obj))
+    print(print_all(eval_all(mystery_obj)))
     df_obj = pd.DataFrame({
         'temp': [67, 69, 70, 70, 71, 70],
         'humidity': [65, 65, 60, 60, 55, 55]
     })
     # print(eval_all(df_obj))
-    #main()
