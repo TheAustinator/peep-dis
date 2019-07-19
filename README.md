@@ -39,21 +39,22 @@
 * Allow user specified arguments (in development)
 
 ## Usage
+**Install**
 ```
 pip install peepdis
 ```
-Import
+**Import**
 ```python
 from peepdis import peep
 ```
-Peep external objects
+**Peep Imported Objects**
 ```python
 import pandas as pd
 
 df = pd.DataFrame({'a': [1, 2, 3], 'b': [4, 5, 6]})
 peep(df)
 ```
-Peep your own objects
+**Peep Your Own Objects**
 ```python
 class Square:
     def __init__(self, a, b, name=None):
@@ -71,31 +72,50 @@ class Square:
 sq = Rect(4, 4)
 peep(sq)
 ```
-Include builtins (i.e. magics)
+**Include Builtins (i.e. Magics)**
+Controls the inclusion of "magic" methods and attributes, which are denoted by leading and trailing double underscores -- e.g., "__init__". They are excluded by default.
 ```python
 peep(sq, builtins=True)
 ```
-Include private attributes and methods
+**Include Private Attributes and Methods**
+Controls the inclusion of private methods and attributes, which are denoted by a single leading underscore -- e.g., "_method_name". They are excluded by default.
 ```python
 peep(sq, privates=True)
 ```
-Print docstrings with output
+**Print Docstrings With Output**
 ```python
 peep(sq, docstrings=True)
 ```
-Include long outputs (truncates at 250 char by default)
+**Truncate Output Length**
+Controls maximum number of characters for each method or attribute output. No truncation will occur if `None` or `0`. Set at 250 characters by default.
 ```python
 peep(sq, truncate_len=None)
 ```
-Use in debugger
+**In the Debugger**
+To call `peep` in the debugger, it must be wrapped in a print statement. This is consistent across pdb, ipdb, PyCharm's built-in debugger, etc.
 ```python
 (Pdb) print(peep(sq))
 ```
 
+## Example Usage
+**I. The Mystery Object**
+We have a simple `mystery_obj` which contains an array of San Francisco temperatures somewhere within it, but we don't know where. We could call `dir`, then iteratively check each method/attribute, or we could just `peep` the object.
+
+![Example 1](/static/peep_mystery_obj.png)
+
+We can quickly identify `stdtemp` as the attribute we need.
+Built-ins are filtered out, and outputs for the rest of the attributes and methods without positional arguments are printed. Methods are colored purple, and attributes are cyan. The outputs from methods requiring positional arguments are grayed out to allow us to skim others more quickly.
+
+**II. What's the name of that method?**
+We have a `DataFrame` with the columns `temp` and `humidity` for San Francisco, which we want to convert to a narrow data model for an API we are building. There's a one-liner for this, but nothing stands out in `dir`, and nothing turns up on Stack Overflow. If we peep the DataFrame, we'll quickly identify `melt` as the method we need.
+![Example 2 call](/static/peep_df.png)
+![Example 2 output](/static/peep_df_output.png)
+
 ## Upcoming Features
-* Include/exclude private methods and attributes
-* Detect and display resultant state changes
-* User specified arguments
-* Argument forging from type hints, docstrings, or by brute force
-* Optionally include docstrings
-* Modify color scheme and other preferences
+**Argument Forging**
+Sometimes a method requires one simple argument to run, like an index. By forging simple arguments like these, we can see example outputs from methods that we wouldn't otherwise be able to see. The sample code which this feature will be based on can be found in the accompanying blog post at ____.
+
+**Tracking State Changes**
+Often, a method call changes the state of the object. Tracking state changes would allow us to see understand what these types of methods do. The sample code which this feature will be based on can be found in the accompanying blog post at ____.
+
+**Customizable Preferences and Color Scheme**
