@@ -29,14 +29,16 @@
 
 ## Overview
 
+Show the outputs of methods and attributes of an object. An example for a numpy array is shown here.
+
 <p align="center"><img width=80% src="https://raw.githubusercontent.com/theaustinator/peep-dis/master/static/peep_dis_demo.gif"></p>
 
 ### Features
-* Evaluate and color codes attributes and callables
+* Evaluates and color codes attributes and callables
 * Duplicates object to avoid state alterations
 * Choose whether builtin and private attributes and methods are included
 * Attempt to forge arguments from type hints (in development)
-* Allow user specified arguments (in development)
+* Track object state changes (in development)
 
 ## Usage
 **Install**
